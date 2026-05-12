@@ -1,0 +1,10 @@
+{$HUGDAV_DOMAIN} {
+    encode zstd gzip
+    request_body { max_size 5GB }
+    reverse_proxy hugdav:8080 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host  {host}
+        header_up X-Forwarded-For   {remote}
+        flush_interval -1
+    }
+}
