@@ -1,0 +1,47 @@
+# Two-service stack: hugdav WebDAV + Caddy TLS reverse proxy.
+#
+# Set the following in a `.env` next to this file:
+#   HUGDAV_HF_REPO=user/repo
+#   HUGDAV_HF_TOKEN=hf_xxx
+#   HUGDAV_DOMAIN=drive.example.com   (must DNS-resolve to this host for Caddy
+#                                       to obtain a Let's Encrypt cert)
+
+services:
+  hugdav:
+    build: .
+    image: hugdav:latest
+    restart: unless-stopped
+    environment:
+      HUGDAV_HF_REPO:      ${HUGDAV_HF_REPO:?set in .env}
+      HUGDAV_HF_REPO_TYPE: ${HUGDAV_HF_REPO_TYPE:-dataset}
+      HUGDAV_HF_TOKEN:     ${HUGDAV_HF_TOKEN:?set in .env}
+      HUGDAV_HF_REVISION:  ${HUGDAV_HF_REVISION:-main}
+      HUGDAV_AUTH:         ${HUGDAV_AUTH:-token}
+      HUGDAV_CACHE_TTL:    ${HUGDAV_CACHE_TTL:-30}
+    volumes:
+      - hf-cache:/data/hf-cache
+    expose:
+      - "8080"
+    # Comment out the `caddy` service and uncomment this to expose hugdav
+    # directly without TLS (only for local trust networks!):
+    # ports:
+    #   - "8080:8080"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [hugdav]
+    environment:
+      HUGDAV_DOMAIN: ${HUGDAV_DOMAIN:?set in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+
+volumes:
+  hf-cache:
+  caddy-data:
+  caddy-config:

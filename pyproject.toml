@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hugdav"
+version = "0.1.0"
+description = "Use a Hugging Face repo as a network drive over WebDAV"
+requires-python = ">=3.10"
+dependencies = [
+    "wsgidav>=4.3",
+    "cheroot>=10",
+    "huggingface_hub>=0.24",
+]
+
+[project.scripts]
+hugdav = "hugdav.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

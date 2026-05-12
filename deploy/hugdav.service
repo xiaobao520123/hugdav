@@ -1,0 +1,30 @@
+[Unit]
+Description=hugdav — Hugging Face WebDAV proxy
+After=network.target
+
+[Service]
+Type=simple
+User=hugdav
+Group=hugdav
+WorkingDirectory=/opt/hugdav
+EnvironmentFile=/etc/hugdav.env
+ExecStart=/opt/hugdav/.venv/bin/hugdav
+Restart=on-failure
+RestartSec=3
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+LockPersonality=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+ReadWritePaths=/var/cache/hugdav
+
+[Install]
+WantedBy=multi-user.target
